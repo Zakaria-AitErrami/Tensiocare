@@ -383,6 +383,7 @@ button:disabled {
 .home-story,
 .about-section,
 .home-features,
+.medical-disclaimer,
 .how-section,
 .benefit-section,
 .trust-section,
@@ -601,6 +602,29 @@ button:disabled {
 .step-card h3,
 .benefit-card h3 {
   color: #17372f;
+}
+
+.medical-disclaimer {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 20px;
+  color: #6f4f16;
+  border: 1px solid rgba(189, 142, 65, 0.28);
+  border-radius: 8px;
+  background: #fffaf0;
+  box-shadow: 0 16px 38px rgba(38, 51, 45, 0.06);
+}
+
+.medical-disclaimer svg {
+  color: #b82a39;
+  flex: 0 0 auto;
+}
+
+.medical-disclaimer p {
+  margin: 0;
+  font-weight: 850;
+  line-height: 1.5;
 }
 
 .steps-grid {
@@ -1812,6 +1836,7 @@ input:focus {
   .home-story,
   .about-section,
   .home-features,
+  .medical-disclaimer,
   .how-section,
   .benefit-section,
   .trust-section,
@@ -1825,6 +1850,7 @@ input:focus {
   .home-story,
   .about-section,
   .home-features,
+  .medical-disclaimer,
   .how-section,
   .benefit-section,
   .trust-section {

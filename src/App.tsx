@@ -684,6 +684,15 @@ function Home({
         </div>
       </section>
 
+      <section className="medical-disclaimer">
+        <AlertTriangle size={20} aria-hidden="true" />
+        <p>
+          {isArabic
+            ? 'AtlasCare لا يعوض الاستشارة الطبية أو التكفل بالحالات المستعجلة.'
+            : 'AtlasCare ne remplace pas une consultation médicale ou une prise en charge d’urgence.'}
+        </p>
+      </section>
+
       <section className="how-section">
         <div className="home-section-heading compact">
           <span className="home-kicker">
