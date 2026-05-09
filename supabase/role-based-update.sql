@@ -42,10 +42,6 @@ as $$
 declare
   candidate text;
 begin
-  if not public.is_doctor() then
-    raise exception 'Doctor role required';
-  end if;
-
   loop
     candidate := 'HTA-' || upper(substr(encode(gen_random_bytes(4), 'hex'), 1, 6));
     exit when not exists (

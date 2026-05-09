@@ -1,4 +1,13 @@
-import type { Language, PatientStatus, Symptom, View } from '../types';
+import type {
+  AlcoholUse,
+  DietQuality,
+  Language,
+  PatientStatus,
+  PhysicalActivity,
+  Symptom,
+  TobaccoUse,
+  View
+} from '../types';
 
 export const languages: { code: Language; label: string; short: string }[] = [
   { code: 'fr', label: 'Francais', short: 'FR' },
@@ -36,6 +45,63 @@ export const symptomLabel: Record<Language, Record<Symptom, string>> = {
     dizziness: 'دوخة',
     chest_pain: 'ألم في الصدر',
     shortness_breath: 'ضيق في التنفس'
+  }
+};
+
+export const lifestyleLabel: Record<
+  Language,
+  {
+    physicalActivity: Record<PhysicalActivity, string>;
+    tobaccoUse: Record<TobaccoUse, string>;
+    alcoholUse: Record<AlcoholUse, string>;
+    dietQuality: Record<DietQuality, string>;
+  }
+> = {
+  fr: {
+    physicalActivity: {
+      none: 'Aucune',
+      walk_lt_30: 'Marche < 30 min',
+      walk_gt_30: 'Marche > 30 min',
+      sport: 'Sport'
+    },
+    tobaccoUse: {
+      non_smoker: 'Non-fumeur',
+      cig_1_10: '1 a 10 cigarettes',
+      cig_gt_10: 'Plus de 10 cigarettes'
+    },
+    alcoholUse: {
+      none: 'Aucun',
+      drinks_1_2: '1 a 2 verres',
+      drinks_gt_2: 'Plus de 2 verres'
+    },
+    dietQuality: {
+      good: 'Bon (fait maison, sans sel ajoute)',
+      medium: 'Moyen (quelques ecarts)',
+      poor: 'Mauvais (plats sales, restauration)'
+    }
+  },
+  ar: {
+    physicalActivity: {
+      none: 'لا شيء',
+      walk_lt_30: 'مشي أقل من 30 دقيقة',
+      walk_gt_30: 'مشي أكثر من 30 دقيقة',
+      sport: 'رياضة'
+    },
+    tobaccoUse: {
+      non_smoker: 'غير مدخن',
+      cig_1_10: '1 إلى 10 سجائر',
+      cig_gt_10: 'أكثر من 10 سجائر'
+    },
+    alcoholUse: {
+      none: 'لا شيء',
+      drinks_1_2: '1 إلى 2 كأس',
+      drinks_gt_2: 'أكثر من 2 كأس'
+    },
+    dietQuality: {
+      good: 'جيد (أكل منزلي بدون ملح مضاف)',
+      medium: 'متوسط (بعض التجاوزات)',
+      poor: 'سيئ (أكل مالح أو مطاعم)'
+    }
   }
 };
 
@@ -104,6 +170,7 @@ export const copy = {
     filterStable: 'Stables',
     filterWarning: 'A surveiller',
     filterCritical: 'Critiques',
+    searchPatient: 'Rechercher par nom ou code',
     patientName: 'Patient',
     status: 'Statut',
     lastBP: 'Derniere TA',
@@ -147,6 +214,11 @@ export const copy = {
     diastolic: 'Diastolique',
     bpm: 'bpm',
     symptomChecklist: 'Symptomes',
+    lifestyleTitle: 'Habitudes du jour',
+    physicalActivity: 'Activite physique',
+    tobaccoUse: 'Tabac',
+    alcoholUse: 'Alcool',
+    dietQuality: 'Regime',
     submitReport: 'Envoyer le rapport du jour',
     reportSaved: 'Rapport envoye',
     reportSavedText:
@@ -218,6 +290,7 @@ export const copy = {
     filterStable: 'مستقر',
     filterWarning: 'للمراقبة',
     filterCritical: 'حرج',
+    searchPatient: 'البحث بالاسم أو الرمز',
     patientName: 'المريض',
     status: 'الحالة',
     lastBP: 'آخر ضغط',
@@ -259,6 +332,11 @@ export const copy = {
     diastolic: 'الانبساطي',
     bpm: 'نبضة/دقيقة',
     symptomChecklist: 'الأعراض',
+    lifestyleTitle: 'عادات اليوم',
+    physicalActivity: 'النشاط البدني',
+    tobaccoUse: 'التدخين',
+    alcoholUse: 'الكحول',
+    dietQuality: 'النظام الغذائي',
     submitReport: 'إرسال تقرير اليوم',
     reportSaved: 'تم إرسال التقرير',
     reportSavedText: 'الطبيب يرى الآن القيم الجديدة والأولوية السريرية.',

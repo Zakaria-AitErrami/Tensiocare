@@ -46,7 +46,15 @@ import {
   sortPatientsByPriority,
   systolicVariability
 } from './lib/alerts';
-import { copy, languages, statusLabel, statusTone, symptomLabel, viewLabel } from './lib/i18n';
+import {
+  copy,
+  languages,
+  lifestyleLabel,
+  statusLabel,
+  statusTone,
+  symptomLabel,
+  viewLabel
+} from './lib/i18n';
 import {
   fetchDoctorPatients,
   fetchPatientPortalProfile,
@@ -62,6 +70,7 @@ import {
 import type {
   BPReading,
   DoctorProfile,
+  LifestyleReport,
   Language,
   NewPatientPayload,
   Patient,
@@ -77,6 +86,16 @@ const symptomOptions: Symptom[] = [
   'dizziness',
   'chest_pain',
   'shortness_breath'
+];
+
+const lifestyleOptions: {
+  key: keyof LifestyleReport;
+  values: LifestyleReport[keyof LifestyleReport][];
+}[] = [
+  { key: 'physicalActivity', values: ['none', 'walk_lt_30', 'walk_gt_30', 'sport'] },
+  { key: 'tobaccoUse', values: ['non_smoker', 'cig_1_10', 'cig_gt_10'] },
+  { key: 'alcoholUse', values: ['none', 'drinks_1_2', 'drinks_gt_2'] },
+  { key: 'dietQuality', values: ['good', 'medium', 'poor'] }
 ];
 
 const viewIcons: Record<View, typeof Activity> = {
@@ -136,6 +155,31 @@ const symptomText = (reading: BPReading | undefined, language: Language) => {
   }
 
   return reading.symptoms.map((symptom) => symptomLabel[language][symptom]).join(', ');
+};
+
+const lifestyleItems = (reading: BPReading | undefined, language: Language) => {
+  if (!reading) {
+    return [];
+  }
+
+  return [
+    {
+      label: copy[language].physicalActivity,
+      value: lifestyleLabel[language].physicalActivity[reading.physicalActivity]
+    },
+    {
+      label: copy[language].tobaccoUse,
+      value: lifestyleLabel[language].tobaccoUse[reading.tobaccoUse]
+    },
+    {
+      label: copy[language].alcoholUse,
+      value: lifestyleLabel[language].alcoholUse[reading.alcoholUse]
+    },
+    {
+      label: copy[language].dietQuality,
+      value: lifestyleLabel[language].dietQuality[reading.dietQuality]
+    }
+  ];
 };
 
 function App() {
@@ -476,12 +520,23 @@ function DoctorDashboard({
   const t = copy[language];
   const summary = clinicSummary(patients);
   const [filter, setFilter] = useState<PatientStatus | 'all'>('all');
+  const [searchTerm, setSearchTerm] = useState('');
 
   const prioritizedPatients = useMemo(
     () => sortPatientsByPriority(patients),
     [patients]
   );
+  const normalizedSearch = searchTerm.trim().toLowerCase();
   const filteredPatients = prioritizedPatients.filter((patient) => {
+    const matchesSearch =
+      !normalizedSearch ||
+      patient.name.toLowerCase().includes(normalizedSearch) ||
+      patient.code.toLowerCase().includes(normalizedSearch);
+
+    if (!matchesSearch) {
+      return false;
+    }
+
     if (filter === 'all') {
       return true;
     }
@@ -513,21 +568,30 @@ function DoctorDashboard({
               <h3>{t.dashboardTitle}</h3>
               <p>{t.priorityAlerts}</p>
             </div>
-            <div className="filter-row">
-              {[
-                ['all', t.filterAll],
-                ['stable', t.filterStable],
-                ['warning', t.filterWarning],
-                ['critical', t.filterCritical]
-              ].map(([value, label]) => (
-                <button
-                  key={value}
-                  className={filter === value ? 'chip active' : 'chip'}
-                  onClick={() => setFilter(value as PatientStatus | 'all')}
-                >
-                  {label}
-                </button>
-              ))}
+            <div className="table-tools">
+              <label className="search-field">
+                <input
+                  value={searchTerm}
+                  placeholder={t.searchPatient}
+                  onChange={(event) => setSearchTerm(event.target.value)}
+                />
+              </label>
+              <div className="filter-row">
+                {[
+                  ['all', t.filterAll],
+                  ['stable', t.filterStable],
+                  ['warning', t.filterWarning],
+                  ['critical', t.filterCritical]
+                ].map(([value, label]) => (
+                  <button
+                    key={value}
+                    className={filter === value ? 'chip active' : 'chip'}
+                    onClick={() => setFilter(value as PatientStatus | 'all')}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
           <PatientTable
@@ -647,6 +711,7 @@ function PatientTable({
             <th>{t.lastBP}</th>
             <th>{t.heartRate}</th>
             <th>{t.symptoms}</th>
+            <th>{t.lifestyleTitle}</th>
             <th>{t.adherence}</th>
             <th>{t.lastUpdate}</th>
           </tr>
@@ -672,6 +737,9 @@ function PatientTable({
                 <td>{bpText(latest)} mmHg</td>
                 <td>{latest ? `${latest.heartRate} ${t.bpm}` : '—'}</td>
                 <td>{symptomText(latest, language)}</td>
+                <td>
+                  <LifestylePills language={language} reading={latest} compact />
+                </td>
                 <td>
                   <span className="adherence-bar">
                     <span style={{ width: `${adherenceRate(patient)}%` }} />
@@ -723,6 +791,10 @@ function PatientDetail({
         <DetailStat label={t.averageBP} value={`${avg.systolic}/${avg.diastolic}`} />
         <DetailStat label={t.variability} value={`${systolicVariability(patient)} mmHg`} />
         <DetailStat label={t.target} value={`${patient.targetSystolic}/${patient.targetDiastolic}`} />
+      </div>
+      <div className="detail-lifestyle">
+        <h4>{t.lifestyleTitle}</h4>
+        <LifestylePills language={language} reading={latest} />
       </div>
       <div className="reason-list">
         <h4>{t.clinicalReasons}</h4>
@@ -928,6 +1000,12 @@ function PatientPortal({
   const [loading, setLoading] = useState(false);
   const [treatmentTaken, setTreatmentTaken] = useState(true);
   const [symptoms, setSymptoms] = useState<Symptom[]>([]);
+  const [lifestyle, setLifestyle] = useState<LifestyleReport>({
+    physicalActivity: 'none',
+    tobaccoUse: 'non_smoker',
+    alcoholUse: 'none',
+    dietQuality: 'medium'
+  });
   const [form, setForm] = useState({
     morningSystolic: 132,
     morningDiastolic: 82,
@@ -996,7 +1074,8 @@ function PatientPortal({
         heartRate: form.morningHeartRate,
         symptoms: [],
         treatmentTaken,
-        recordedAt: morningDate.toISOString()
+        recordedAt: morningDate.toISOString(),
+        ...lifestyle
       },
       {
         period: 'evening',
@@ -1005,7 +1084,8 @@ function PatientPortal({
         heartRate: form.eveningHeartRate,
         symptoms,
         treatmentTaken,
-        recordedAt: eveningDate.toISOString()
+        recordedAt: eveningDate.toISOString(),
+        ...lifestyle
       }
     ];
 
@@ -1103,6 +1183,34 @@ function PatientPortal({
                 {symptoms.includes(symptom) && <Check size={17} aria-hidden="true" />}
                 {symptomLabel[language][symptom]}
               </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="lifestyle-panel">
+          <h3>{t.lifestyleTitle}</h3>
+          <div className="lifestyle-grid">
+            {lifestyleOptions.map((group) => (
+              <div className="lifestyle-group" key={group.key}>
+                <h4>{t[group.key]}</h4>
+                <div className="option-list">
+                  {group.values.map((value) => (
+                    <button
+                      key={value}
+                      type="button"
+                      className={lifestyle[group.key] === value ? 'option active' : 'option'}
+                      onClick={() =>
+                        setLifestyle((current) => ({
+                          ...current,
+                          [group.key]: value
+                        }))
+                      }
+                    >
+                      {lifestyleLabel[language][group.key][value as never]}
+                    </button>
+                  ))}
+                </div>
+              </div>
             ))}
           </div>
         </div>
@@ -1492,6 +1600,33 @@ function DetailStat({ label, value }: { label: string; value: string }) {
     <div className="detail-stat">
       <span>{label}</span>
       <strong>{value}</strong>
+    </div>
+  );
+}
+
+function LifestylePills({
+  language,
+  reading,
+  compact = false
+}: {
+  language: Language;
+  reading: BPReading | undefined;
+  compact?: boolean;
+}) {
+  const items = lifestyleItems(reading, language);
+
+  if (!items.length) {
+    return <span className="empty-value">—</span>;
+  }
+
+  return (
+    <div className={compact ? 'lifestyle-pills compact' : 'lifestyle-pills'}>
+      {items.map((item) => (
+        <div key={item.label} className="lifestyle-pill">
+          <small>{item.label}</small>
+          <strong>{item.value}</strong>
+        </div>
+      ))}
     </div>
   );
 }

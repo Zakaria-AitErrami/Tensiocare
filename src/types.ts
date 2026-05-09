@@ -12,7 +12,35 @@ export type Symptom =
   | 'chest_pain'
   | 'shortness_breath';
 
-export interface BPReading {
+export type PhysicalActivity =
+  | 'none'
+  | 'walk_lt_30'
+  | 'walk_gt_30'
+  | 'sport';
+
+export type TobaccoUse =
+  | 'non_smoker'
+  | 'cig_1_10'
+  | 'cig_gt_10';
+
+export type AlcoholUse =
+  | 'none'
+  | 'drinks_1_2'
+  | 'drinks_gt_2';
+
+export type DietQuality =
+  | 'good'
+  | 'medium'
+  | 'poor';
+
+export interface LifestyleReport {
+  physicalActivity: PhysicalActivity;
+  tobaccoUse: TobaccoUse;
+  alcoholUse: AlcoholUse;
+  dietQuality: DietQuality;
+}
+
+export interface BPReading extends LifestyleReport {
   id: string;
   patientId: string;
   period: ReadingPeriod;

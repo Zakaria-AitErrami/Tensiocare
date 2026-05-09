@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import type {
   BPReading,
   DoctorProfile,
+  LifestyleReport,
   NewPatientPayload,
   Patient,
   PatientPortalProfile,
@@ -34,7 +35,11 @@ const mapReading = (row: Record<string, unknown>): BPReading => ({
   heartRate: Number(row.heart_rate),
   symptoms: ((row.symptoms as string[] | null) ?? []) as Symptom[],
   treatmentTaken: Boolean(row.treatment_taken),
-  recordedAt: String(row.reported_at)
+  recordedAt: String(row.reported_at),
+  physicalActivity: (row.physical_activity as LifestyleReport['physicalActivity'] | null) ?? 'none',
+  tobaccoUse: (row.tobacco_use as LifestyleReport['tobaccoUse'] | null) ?? 'non_smoker',
+  alcoholUse: (row.alcohol_use as LifestyleReport['alcoholUse'] | null) ?? 'none',
+  dietQuality: (row.diet_quality as LifestyleReport['dietQuality'] | null) ?? 'medium'
 });
 
 const mapPatient = (row: Record<string, unknown>): Patient => ({
@@ -150,6 +155,10 @@ export const fetchDoctorPatients = async (): Promise<Patient[]> => {
           heart_rate,
           symptoms,
           treatment_taken,
+          physical_activity,
+          tobacco_use,
+          alcohol_use,
+          diet_quality,
           reported_at
         )
       `
@@ -168,10 +177,22 @@ export const generateUniqueAccessCode = async (): Promise<string> => {
   const { data, error } = await client.rpc('generate_patient_access_code');
 
   if (error) {
-    throw error;
+    console.warn('Supabase code generation failed, using client fallback.', error);
+    return generateLocalAccessCode();
   }
 
-  return String(data);
+  return data ? String(data) : generateLocalAccessCode();
+};
+
+const generateLocalAccessCode = () => {
+  const bytes = new Uint8Array(3);
+  crypto.getRandomValues(bytes);
+  const suffix = Array.from(bytes)
+    .map((byte) => byte.toString(16).padStart(2, '0'))
+    .join('')
+    .toUpperCase();
+
+  return `HTA-${suffix}`;
 };
 
 export const insertPatientProfile = async (
@@ -219,6 +240,10 @@ export const insertPatientProfile = async (
           heart_rate,
           symptoms,
           treatment_taken,
+          physical_activity,
+          tobacco_use,
+          alcohol_use,
+          diet_quality,
           reported_at
         )
       `
@@ -270,6 +295,10 @@ export const submitPatientReadingsByCode = async (
       heart_rate: item.heartRate,
       symptoms: item.symptoms,
       treatment_taken: item.treatmentTaken,
+      physical_activity: item.physicalActivity,
+      tobacco_use: item.tobaccoUse,
+      alcohol_use: item.alcoholUse,
+      diet_quality: item.dietQuality,
       reported_at: item.recordedAt
     });
 

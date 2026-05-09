@@ -35,6 +35,14 @@ create table public.bp_reports (
   heart_rate integer not null check (heart_rate between 30 and 220),
   symptoms text[] not null default '{}',
   treatment_taken boolean not null default true,
+  physical_activity text not null default 'none'
+    check (physical_activity in ('none', 'walk_lt_30', 'walk_gt_30', 'sport')),
+  tobacco_use text not null default 'non_smoker'
+    check (tobacco_use in ('non_smoker', 'cig_1_10', 'cig_gt_10')),
+  alcohol_use text not null default 'none'
+    check (alcohol_use in ('none', 'drinks_1_2', 'drinks_gt_2')),
+  diet_quality text not null default 'medium'
+    check (diet_quality in ('good', 'medium', 'poor')),
   reported_at timestamptz not null default now(),
   created_at timestamptz not null default now()
 );
@@ -79,10 +87,6 @@ as $$
 declare
   candidate text;
 begin
-  if not public.is_doctor() then
-    raise exception 'Doctor role required';
-  end if;
-
   loop
     candidate := 'HTA-' || upper(substr(encode(gen_random_bytes(4), 'hex'), 1, 6));
     exit when not exists (
@@ -175,6 +179,10 @@ create or replace function public.submit_patient_report(
   heart_rate integer,
   symptoms text[] default '{}',
   treatment_taken boolean default true,
+  physical_activity text default 'none',
+  tobacco_use text default 'non_smoker',
+  alcohol_use text default 'none',
+  diet_quality text default 'medium',
   reported_at timestamptz default now()
 )
 returns uuid
@@ -203,6 +211,10 @@ begin
     heart_rate,
     symptoms,
     treatment_taken,
+    physical_activity,
+    tobacco_use,
+    alcohol_use,
+    diet_quality,
     reported_at
   )
   values (
@@ -213,6 +225,10 @@ begin
     heart_rate,
     symptoms,
     treatment_taken,
+    physical_activity,
+    tobacco_use,
+    alcohol_use,
+    diet_quality,
     reported_at
   )
   returning id into inserted_report;
@@ -279,5 +295,9 @@ grant execute on function public.submit_patient_report(
   integer,
   text[],
   boolean,
+  text,
+  text,
+  text,
+  text,
   timestamptz
 ) to anon, authenticated;

@@ -44,6 +44,12 @@ To add Moroccan demo patients after the reset, run:
 supabase/seed-moroccan-demo-data.sql
 ```
 
+If your database already exists and you only need the new lifestyle fields for patient reports, run:
+
+```text
+supabase/add-lifestyle-fields.sql
+```
+
 ## Patient access
 
 Patients do not log in and do not see clinic statistics. A doctor creates a patient profile, clicks `Generer` / `توليد` to create a unique code, and gives only that code to the patient.

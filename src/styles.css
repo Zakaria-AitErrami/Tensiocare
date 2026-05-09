@@ -512,6 +512,20 @@ button:disabled {
   justify-content: flex-end;
 }
 
+.table-tools {
+  display: grid;
+  gap: 10px;
+  justify-items: end;
+}
+
+.search-field {
+  min-width: min(320px, 100%);
+}
+
+.search-field input {
+  min-height: 40px;
+}
+
 .chip {
   border: 1px solid var(--line);
   background: #f8fbfd;
@@ -525,7 +539,7 @@ button:disabled {
 table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 850px;
+  min-width: 1060px;
 }
 
 th {
@@ -647,6 +661,58 @@ td span {
   margin-top: 5px;
   color: var(--ink);
   font-size: 1.1rem;
+}
+
+.detail-lifestyle {
+  display: grid;
+  gap: 10px;
+  margin-top: 18px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f8fbfd;
+}
+
+.detail-lifestyle h4 {
+  margin: 0;
+}
+
+.lifestyle-pills {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.lifestyle-pills.compact {
+  grid-template-columns: repeat(2, minmax(105px, 1fr));
+  min-width: 230px;
+}
+
+.lifestyle-pill {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.lifestyle-pill small {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1.15;
+}
+
+.lifestyle-pill strong {
+  color: var(--ink);
+  font-size: 0.82rem;
+  line-height: 1.2;
+}
+
+.empty-value {
+  color: var(--muted);
 }
 
 .reason-list {
@@ -864,6 +930,7 @@ input:focus {
 
 .bp-group,
 .symptom-panel,
+.lifestyle-panel,
 .treatment-panel {
   padding: 20px;
   box-shadow: 0 12px 30px rgba(16, 42, 67, 0.06);
@@ -896,7 +963,8 @@ input:focus {
   text-align: center;
 }
 
-.symptom-panel {
+.symptom-panel,
+.lifestyle-panel {
   grid-column: 1 / -1;
 }
 
@@ -921,6 +989,49 @@ input:focus {
 }
 
 .symptom.active {
+  color: var(--blue-dark);
+  border-color: rgba(25, 118, 210, 0.3);
+  background: var(--blue-soft);
+}
+
+.lifestyle-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.lifestyle-group {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.lifestyle-group h4 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 0.95rem;
+}
+
+.option-list {
+  display: grid;
+  gap: 8px;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 8px 10px;
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.option.active {
   color: var(--blue-dark);
   border-color: rgba(25, 118, 210, 0.3);
   background: var(--blue-soft);
@@ -1104,6 +1215,7 @@ input:focus {
   .daily-form,
   .bp-input-grid,
   .symptom-grid,
+  .lifestyle-grid,
   .new-patient-panel .compact {
     grid-template-columns: 1fr;
   }
@@ -1127,6 +1239,14 @@ input:focus {
 
   .filter-row {
     justify-content: flex-start;
+  }
+
+  .table-tools {
+    justify-items: stretch;
+  }
+
+  .search-field {
+    min-width: 0;
   }
 
   .detail-stats {

@@ -231,6 +231,48 @@ begin
     (patient_meryem, 'evening', 136, 84, 67, '{}', true, now() - interval '3 days 20 hours'),
     (patient_meryem, 'morning', 129, 80, 64, '{}', true, now() - interval '1 day 8 hours'),
     (patient_meryem, 'evening', 133, 83, 66, '{}', true, now() - interval '45 minutes');
+
+  update public.bp_reports
+  set physical_activity = 'walk_lt_30',
+      tobacco_use = 'cig_1_10',
+      alcohol_use = 'none',
+      diet_quality = 'medium'
+  where patient_id = patient_ahmed;
+
+  update public.bp_reports
+  set physical_activity = 'none',
+      tobacco_use = 'non_smoker',
+      alcohol_use = 'none',
+      diet_quality = 'poor'
+  where patient_id = patient_fatima;
+
+  update public.bp_reports
+  set physical_activity = 'walk_gt_30',
+      tobacco_use = 'non_smoker',
+      alcohol_use = 'none',
+      diet_quality = 'good'
+  where patient_id = patient_abdelkader;
+
+  update public.bp_reports
+  set physical_activity = 'walk_lt_30',
+      tobacco_use = 'non_smoker',
+      alcohol_use = 'drinks_1_2',
+      diet_quality = 'medium'
+  where patient_id = patient_aicha;
+
+  update public.bp_reports
+  set physical_activity = 'none',
+      tobacco_use = 'cig_gt_10',
+      alcohol_use = 'drinks_gt_2',
+      diet_quality = 'poor'
+  where patient_id = patient_youssef;
+
+  update public.bp_reports
+  set physical_activity = 'sport',
+      tobacco_use = 'non_smoker',
+      alcohol_use = 'none',
+      diet_quality = 'good'
+  where patient_id = patient_meryem;
 end;
 $$;
 
