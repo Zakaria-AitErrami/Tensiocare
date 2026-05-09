@@ -14,6 +14,8 @@ import {
   Languages,
   LockKeyhole,
   LogIn,
+  LogOut,
+  Mail,
   Plus,
   ShieldCheck,
   Smartphone,
@@ -132,6 +134,7 @@ const statusColors: Record<PatientStatus, string> = {
   warning: '#f09a2a',
   critical: '#e5484d'
 };
+const contactEmail = 'Adaiterrami@yahoo.com';
 
 const formatDateTime = (value: string | undefined, language: Language) => {
   if (!value) {
@@ -276,6 +279,18 @@ function App() {
     return patient;
   };
 
+  const handleDoctorLogout = async () => {
+    if (isSupabaseConfigured) {
+      await signOutDoctor().catch(() => undefined);
+    }
+
+    setDoctorProfile(null);
+    setPatients([]);
+    setSelectedPatientId('');
+    setClinicError('');
+    setActiveView('home');
+  };
+
   const navigateTo = (view: View) => {
     if (view === 'patient') {
       if (doctorProfile) {
@@ -299,6 +314,7 @@ function App() {
         doctorSignedIn={Boolean(doctorProfile)}
         setActiveView={navigateTo}
         setLanguage={setLanguage}
+        onLogout={handleDoctorLogout}
       />
 
       <main>
@@ -345,9 +361,15 @@ function App() {
       </main>
 
       <footer className="footer">
-        <span>{t.brand}</span>
-        <span>{t.tagline}</span>
-        <span>{t.supabaseReady}</span>
+        <div>
+          <strong>{t.brand}</strong>
+          <span>{t.footerTagline}</span>
+        </div>
+        <div className="footer-links">
+          <button onClick={() => navigateTo('doctor')}>{t.doctorCTA}</button>
+          <button onClick={() => navigateTo('patient')}>{t.patientCTA}</button>
+          <a href={`mailto:${contactEmail}`}>{t.contactUs}</a>
+        </div>
       </footer>
     </div>
   );
@@ -359,6 +381,7 @@ interface HeaderProps {
   doctorSignedIn: boolean;
   setActiveView: (view: View) => void;
   setLanguage: (language: Language) => void;
+  onLogout: () => void;
 }
 
 function Header({
@@ -366,7 +389,8 @@ function Header({
   language,
   doctorSignedIn,
   setActiveView,
-  setLanguage
+  setLanguage,
+  onLogout
 }: HeaderProps) {
   const t = copy[language];
   const availableViews = doctorSignedIn
@@ -377,7 +401,7 @@ function Header({
     <header className="topbar">
       <button className="brand-button" onClick={() => setActiveView('home')}>
         <span className="brand-mark">
-          <HeartPulse size={22} aria-hidden="true" />
+          <img className="brand-logo" src="/assets/suivi-hta-logo.png" alt="" />
         </span>
         <span>
           <strong>{t.brand}</strong>
@@ -404,8 +428,14 @@ function Header({
       <div className="topbar-actions">
         <span className={`auth-pill ${doctorSignedIn ? 'is-live' : ''}`}>
           <ShieldCheck size={16} aria-hidden="true" />
-          {doctorSignedIn ? t.authenticated : 'Supabase'}
+          {doctorSignedIn ? t.authenticated : t.secureAccess}
         </span>
+        {doctorSignedIn && (
+          <button className="logout-button" onClick={onLogout}>
+            <LogOut size={16} aria-hidden="true" />
+            {t.signOut}
+          </button>
+        )}
         <div className="language-toggle" aria-label="Language selector">
           <Languages size={16} aria-hidden="true" />
           {languages.map((item) => (
@@ -431,68 +461,299 @@ function Home({
   setActiveView: (view: View) => void;
 }) {
   const t = copy[language];
+  const isArabic = language === 'ar';
+  const story = isArabic
+    ? {
+        title: 'متابعة ذكية ومستمرة لارتفاع ضغط الدم',
+        body:
+          'تساعد المنصة الأطباء والعيادات والمؤسسات الصحية على متابعة مرضى ارتفاع الضغط بطريقة بسيطة، حديثة ومستمرة، بهدف اكتشاف الاضطرابات والحالات الخطرة قبل ظهور المضاعفات.',
+        patientIntro: 'كل يوم، يرسل المريض بسرعة معطياته الأساسية:',
+        doctorIntro: 'تُحلل المعطيات تلقائيا حتى يتمكن الطبيب من:',
+        visionTitle: 'رؤيتنا',
+        vision:
+          'إعادة تعريف العلاقة بين الطبيب والمريض عبر مراقبة طبية مستمرة، ذكية، وقريبة من الحياة اليومية.'
+      }
+    : {
+        title: 'Un suivi intelligent et continu de l’hypertension artérielle',
+        body:
+          'Notre plateforme aide les médecins, cliniques et structures de santé à assurer un suivi simple, moderne et continu des patients atteints d’hypertension artérielle. L’objectif est de détecter précocement les déséquilibres tensionnels et les situations à risque avant l’apparition des complications.',
+        patientIntro: 'Chaque jour, le patient renseigne rapidement ses paramètres essentiels :',
+        doctorIntro: 'Les données sont automatiquement analysées afin de permettre au médecin de :',
+        visionTitle: 'Vision',
+        vision:
+          'Redéfinir la relation médecin-patient grâce à une surveillance médicale continue, intelligente et accessible.'
+      };
+  const about = isArabic
+    ? {
+        kicker: 'من نحن؟',
+        title: 'AtlasCare: Atlas HTA',
+        body:
+          'Atlas HTA هو فرع تابع لـ AtlasCare ومخصص للمتابعة الذكية لارتفاع ضغط الدم ضمن منظومة الطب المتصل والأمراض المزمنة.',
+        detail:
+          'تطور AtlasCare عدة مسارات رقمية للمتابعة المستمرة والشخصية، بهدف تعزيز الوقاية واستباق المضاعفات قبل الحالات المستعجلة.',
+        parentLabel: 'المنظومة الأم',
+        parentName: 'AtlasCare',
+        parentText: 'Connected Health للأمراض المزمنة',
+        childLabel: 'الفرع المتخصص',
+        childName: 'Atlas HTA',
+        childText: 'متابعة ذكية لارتفاع ضغط الدم',
+        conditions: [
+          'ارتفاع ضغط الدم',
+          'السكري من النوع الثاني',
+          'أمراض الروماتيزم',
+          'أمراض الأمعاء الالتهابية',
+          'التهابات الكبد المزمنة'
+        ]
+      }
+    : {
+        kicker: 'Qui sommes-nous ?',
+        title: 'AtlasCare: Atlas HTA',
+        body:
+          'Atlas HTA est une filiale d’AtlasCare dédiée au suivi intelligent de l’hypertension artérielle, au sein d’un écosystème de médecine connectée pour les maladies chroniques.',
+        detail:
+          'AtlasCare développe un écosystème de parcours numériques permettant le suivi continu et personnalisé de plusieurs pathologies, afin d’améliorer la prévention et d’anticiper les complications avant l’urgence.',
+        parentLabel: 'Maison mère',
+        parentName: 'AtlasCare',
+        parentText: 'Connected Health pour maladies chroniques',
+        childLabel: 'Branche spécialisée',
+        childName: 'Atlas HTA',
+        childText: 'Suivi intelligent de l’hypertension artérielle',
+        conditions: [
+          'Hypertension artérielle',
+          'Diabète de type 2',
+          'Maladies rhumatismales',
+          'MICI',
+          'Hépatites chroniques'
+        ]
+      };
+  const dailyItems = isArabic
+    ? ['ضغط الدم', 'نبض القلب', 'الأعراض المحتملة', 'أخذ العلاج']
+    : ['tension artérielle', 'fréquence cardiaque', 'symptômes éventuels', 'prise du traitement'];
+  const doctorItems = isArabic
+    ? ['تحديد المرضى الذين يحتاجون اهتماما خاصا', 'متابعة تطور الضغط في الوقت الحقيقي', 'ضمان رعاية استباقية وشخصية']
+    : [
+        'repérer les patients nécessitant une attention particulière',
+        'suivre l’évolution tensionnelle en temps réel',
+        'assurer une prise en charge proactive et personnalisée'
+      ];
+  const featureCards: Array<{ title: string; body: string; icon: typeof Activity }> = isArabic
+    ? [
+        { title: 'فرز طبي ذكي', body: 'تصنيف واضح للحالات المستقرة، التي تحتاج مراقبة، والحالات الحرجة.', icon: HeartPulse },
+        { title: 'متابعة يومية سهلة', body: 'إدخال سريع ومطمئن يناسب المرضى كبار السن.', icon: Smartphone },
+        { title: 'تنبيهات مبكرة', body: 'إظهار الحالات الخطرة قبل أن تتحول إلى مضاعفات.', icon: Bell },
+        { title: 'رؤية سريرية منظمة', body: 'بيانات مفهومة تساعد الطبيب على اتخاذ القرار بسرعة.', icon: BarChart3 }
+      ]
+    : [
+        { title: 'Triage médical intelligent', body: 'Classification claire des patients stables, à surveiller et critiques.', icon: HeartPulse },
+        { title: 'Suivi quotidien simple', body: 'Saisie rapide, rassurante et adaptée aux patients âgés.', icon: Smartphone },
+        { title: 'Alertes précoces', body: 'Priorisation des situations à risque avant les complications.', icon: Bell },
+        { title: 'Vision clinique organisée', body: 'Données lisibles pour aider le médecin à décider vite.', icon: BarChart3 }
+      ];
+  const steps = isArabic
+    ? [
+        ['01', 'الطبيب ينشئ رمز المريض', 'رمز بسيط يسمح للمريض بإرسال تقريره اليومي.'],
+        ['02', 'المريض يرسل القياسات', 'ضغط الصباح والمساء، النبض، الأعراض، العلاج والعادات اليومية.'],
+        ['03', 'النظام يرتب الأولويات', 'القيم الخطرة تظهر أولا في لوحة الطبيب.']
+      ]
+    : [
+        ['01', 'Le médecin crée le code patient', 'Un code simple donne accès au rapport quotidien.'],
+        ['02', 'Le patient envoie ses mesures', 'TA matin/soir, pouls, symptômes, traitement et habitudes du jour.'],
+        ['03', 'La plateforme priorise les risques', 'Les situations dangereuses remontent en premier sur le tableau médecin.']
+      ];
+  const benefitCards = isArabic
+    ? [
+        ['للأطباء والعيادات', 'متابعة أسرع، أولويات واضحة، وقرارات مبنية على تطور الضغط اليومي.'],
+        ['للمرضى', 'تجربة بسيطة ومطمئنة بدون تعقيد، مصممة للحياة اليومية.']
+      ]
+    : [
+        ['Pour les médecins et cliniques', 'Suivi plus rapide, priorités visibles, décisions basées sur l’évolution quotidienne.'],
+        ['Pour les patients', 'Expérience simple et rassurante, sans complexité, pensée pour le quotidien.']
+      ];
 
   return (
-    <>
-      <section
-        className="hero"
-        style={{
-          backgroundImage:
-            'linear-gradient(90deg, rgba(255,255,255,.96), rgba(255,255,255,.84) 42%, rgba(255,255,255,.18) 74%), url(/assets/hypertension-care-hero.png)'
-        }}
-      >
-        <div className="hero-content">
-          <span className="eyebrow">
-            <Activity size={16} aria-hidden="true" />
-            {t.productSignal}
-          </span>
-          <h1>{t.heroTitle}</h1>
-          <p>{t.heroBody}</p>
-          <div className="hero-actions">
-            <button className="primary-action" onClick={() => setActiveView('doctor')}>
-              <Stethoscope size={19} aria-hidden="true" />
-              {t.doctorCTA}
-              <ArrowRight size={18} aria-hidden="true" />
-            </button>
-            <button className="secondary-action" onClick={() => setActiveView('patient')}>
-              <Smartphone size={19} aria-hidden="true" />
-              {t.patientCTA}
-            </button>
+    <div className="home-page">
+      <section className="morocco-hero">
+        <div className="morocco-pattern" aria-hidden="true" />
+        <div className="morocco-hero-inner">
+          <div className="morocco-hero-copy">
+            <span className="home-kicker">
+              <HeartPulse size={18} aria-hidden="true" />
+              {isArabic ? 'رعاية مستمرة لارتفاع الضغط' : 'Surveillance continue de l’HTA'}
+            </span>
+            <h1>{t.heroTitle}</h1>
+            <p>{t.heroBody}</p>
+            <div className="hero-actions">
+              <button className="primary-action morocco-primary" onClick={() => setActiveView('doctor')}>
+                <Stethoscope size={19} aria-hidden="true" />
+                {t.doctorCTA}
+                <ArrowRight size={18} aria-hidden="true" />
+              </button>
+              <button className="secondary-action morocco-secondary" onClick={() => setActiveView('patient')}>
+                <Smartphone size={19} aria-hidden="true" />
+                {t.patientCTA}
+              </button>
+            </div>
           </div>
-          <div className="hero-metrics" aria-label="Platform metrics">
-            <MetricMini value="HTA" label={t.patientsFollowed} />
-            <MetricMini value="24/7" label={t.criticalFirst} />
-            <MetricMini value="< 1 min" label={t.dailyMinute} />
+
+          <div className="morocco-visual" aria-label="Aperçu médical marocain">
+            <div className="visual-photo">
+              <img src="/assets/moroccan-hta-monitoring.jpeg" alt="" />
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="content-section intro-grid">
-        <FeatureCard
-          icon={HeartPulse}
-          title={t.clinicalFocus}
-          body={t.secureData}
-        />
-        <FeatureCard icon={Bell} title={t.proactiveCare} body={t.proactiveText} />
-        <FeatureCard icon={Smartphone} title={t.simplePatients} body={t.simpleText} />
-        <FeatureCard icon={ShieldCheck} title={t.clinicReady} body={t.clinicText} />
+      <section className="about-section">
+        <div className="about-copy">
+          <span className="home-kicker">
+            <ShieldCheck size={17} aria-hidden="true" />
+            {about.kicker}
+          </span>
+          <h2>{about.title}</h2>
+          <p>{about.body}</p>
+          <p>{about.detail}</p>
+        </div>
+        <div className="about-ecosystem" aria-label={about.kicker}>
+          <div className="ecosystem-node parent">
+            <span>{about.parentLabel}</span>
+            <strong>{about.parentName}</strong>
+            <small>{about.parentText}</small>
+          </div>
+          <div className="ecosystem-connector" aria-hidden="true" />
+          <div className="ecosystem-node child">
+            <span>{about.childLabel}</span>
+            <strong>{about.childName}</strong>
+            <small>{about.childText}</small>
+          </div>
+          <div className="condition-list">
+            {about.conditions.map((condition) => (
+              <span key={condition}>
+                <Check size={16} aria-hidden="true" />
+                {condition}
+              </span>
+            ))}
+          </div>
+        </div>
       </section>
 
-      <section className="content-section triage-band">
+      <section className="home-story">
+        <div className="home-section-heading">
+          <span className="home-kicker">
+            <ShieldCheck size={17} aria-hidden="true" />
+            {isArabic ? 'طب استباقي' : 'Médecine proactive'}
+          </span>
+          <h2>{story.title}</h2>
+          <p>{story.body}</p>
+        </div>
+
+        <div className="story-columns">
+          <div className="story-panel">
+            <h3>{story.patientIntro}</h3>
+            <div className="check-list">
+              {dailyItems.map((item) => (
+                <span key={item}>
+                  <Check size={17} aria-hidden="true" />
+                  {item}
+                </span>
+              ))}
+            </div>
+          </div>
+          <div className="story-panel accent">
+            <h3>{story.doctorIntro}</h3>
+            <div className="check-list">
+              {doctorItems.map((item) => (
+                <span key={item}>
+                  <Check size={17} aria-hidden="true" />
+                  {item}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="home-features">
+        <div className="feature-grid premium">
+          {featureCards.map(({ title, body, icon: Icon }) => (
+            <article className="premium-feature" key={title}>
+              <Icon size={24} aria-hidden="true" />
+              <h3>{title}</h3>
+              <p>{body}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="how-section">
+        <div className="home-section-heading compact">
+          <span className="home-kicker">
+            <CalendarClock size={17} aria-hidden="true" />
+            {isArabic ? 'كيف تعمل المنصة' : 'Comment ça marche'}
+          </span>
+          <h2>{isArabic ? 'ثلاث خطوات بسيطة لمتابعة أكثر أمانا' : 'Trois gestes simples pour un suivi plus sûr'}</h2>
+        </div>
+        <div className="steps-grid">
+          {steps.map(([number, title, body]) => (
+            <article className="step-card" key={number}>
+              <span>{number}</span>
+              <h3>{title}</h3>
+              <p>{body}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="benefit-section">
+        <div className="benefit-card">
+          <div>
+            <span className="home-kicker">
+              <Stethoscope size={17} aria-hidden="true" />
+              {isArabic ? 'فوائد ملموسة' : 'Bénéfices concrets'}
+            </span>
+            <h2>{isArabic ? 'منصة تجمع بين الوضوح الطبي ودفء المتابعة' : 'Une plateforme entre clarté médicale et proximité humaine'}</h2>
+          </div>
+          <div className="benefit-list">
+            {benefitCards.map(([title, body]) => (
+              <article key={title}>
+                <h3>{title}</h3>
+                <p>{body}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="trust-section">
+        <div className="trust-content">
+          <span className="home-kicker">
+            <AlertTriangle size={17} aria-hidden="true" />
+            {isArabic ? 'الثقة والكشف المبكر' : 'Confiance et détection précoce'}
+          </span>
+          <h2>{story.visionTitle}</h2>
+          <p>{story.vision}</p>
+        </div>
+        <div className="trust-metrics">
+          <MetricMini value="180/110" label={isArabic ? 'عتبة إنذار فورية' : 'seuil d alerte immédiat'} />
+          <MetricMini value="< 1 min" label={isArabic ? 'تقرير يومي سريع' : 'rapport quotidien rapide'} />
+          <MetricMini value="24/7" label={isArabic ? 'استمرارية المتابعة' : 'continuité du suivi'} />
+        </div>
+      </section>
+
+      <section className="contact-section">
         <div>
-          <span className="eyebrow">
-            <AlertTriangle size={16} aria-hidden="true" />
-            {t.liveBadge}
+          <span className="home-kicker">
+            <Mail size={17} aria-hidden="true" />
+            {t.contactUs}
           </span>
-          <h2>{t.triageTitle}</h2>
+          <h2>{t.contactTitle}</h2>
+          <p>{t.contactBody}</p>
         </div>
-        <div className="triage-rules">
-          <RuleItem status="stable" text={t.greenRule} />
-          <RuleItem status="warning" text={t.orangeRule} />
-          <RuleItem status="critical" text={t.redRule} />
-        </div>
+        <a className="contact-button" href={`mailto:${contactEmail}`}>
+          <Mail size={18} aria-hidden="true" />
+          {contactEmail}
+        </a>
       </section>
-    </>
+    </div>
   );
 }
 
@@ -621,8 +882,8 @@ function DoctorLogin({
   setDoctorProfile: (profile: DoctorProfile) => void;
 }) {
   const t = copy[language];
-  const [email, setEmail] = useState('doctor@clinic.hta');
-  const [password, setPassword] = useState('demo-clinic');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
   const handleSubmit = async (event: FormEvent) => {
@@ -639,20 +900,25 @@ function DoctorLogin({
 
   return (
     <section className="auth-screen">
-      <form className="auth-panel" onSubmit={handleSubmit}>
+      <form className="auth-panel" onSubmit={handleSubmit} autoComplete="off">
         <span className="brand-mark large">
-          <LockKeyhole size={26} aria-hidden="true" />
+          <img className="brand-logo" src="/assets/suivi-hta-logo.png" alt="" />
         </span>
         <h1>{t.signInTitle}</h1>
         <p>{t.signInBody}</p>
         <label>
           {t.email}
-          <input value={email} onChange={(event) => setEmail(event.target.value)} />
+          <input
+            autoComplete="off"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+          />
         </label>
         <label>
           {t.password}
           <input
             type="password"
+            autoComplete="new-password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
           />
@@ -664,7 +930,7 @@ function DoctorLogin({
             {t.signIn}
           </button>
         </div>
-        <small>{isSupabaseConfigured ? t.doctorOnlyAccess : t.supabaseRequired}</small>
+        <small>{isSupabaseConfigured ? t.doctorOnlyAccess : t.serverRequired}</small>
       </form>
     </section>
   );
@@ -1557,26 +1823,6 @@ function MetricCard({
         <p>{label}</p>
       </div>
     </div>
-  );
-}
-
-function FeatureCard({
-  icon: Icon,
-  title,
-  body
-}: {
-  icon: typeof Activity;
-  title: string;
-  body: string;
-}) {
-  return (
-    <article className="feature-card">
-      <span>
-        <Icon size={22} aria-hidden="true" />
-      </span>
-      <h3>{title}</h3>
-      <p>{body}</p>
-    </article>
   );
 }
 

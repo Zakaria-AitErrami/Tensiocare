@@ -10,7 +10,7 @@ import type {
 } from '../types';
 
 export const languages: { code: Language; label: string; short: string }[] = [
-  { code: 'fr', label: 'Francais', short: 'FR' },
+  { code: 'fr', label: 'Français', short: 'FR' },
   { code: 'ar', label: 'العربية', short: 'AR' }
 ];
 
@@ -108,7 +108,7 @@ export const lifestyleLabel: Record<
 export const viewLabel: Record<Language, Record<View, string>> = {
   fr: {
     home: 'Accueil',
-    doctor: 'Medecin',
+    doctor: 'Médecin',
     patient: 'Patient',
     alerts: 'Alertes',
     stats: 'Statistiques'
@@ -124,18 +124,17 @@ export const viewLabel: Record<Language, Record<View, string>> = {
 
 export const copy = {
   fr: {
-    brand: 'TensioCare HTA',
-    tagline: 'Continuous intelligent hypertension care',
-    heroTitle: 'Suivi intelligent continu de l hypertension arterielle',
+    brand: 'Suivi HTA',
+    tagline: 'Suivi intelligent de l’hypertension',
+    heroTitle: 'Une plateforme intelligente pour anticiper les complications de l’HTA avant l’urgence',
     heroBody:
-      'Une plateforme medicale specialisee HTA pour relier les patients hypertendus a leur medecin, prioriser les risques et agir avant la decompensation.',
-    doctorCTA: 'Ouvrir le tableau medecin',
+      'Une plateforme marocaine de suivi intelligent et continu de l’hypertension artérielle, conçue pour aider les médecins et cliniques à détecter plus tôt les déséquilibres tensionnels.',
+    doctorCTA: 'Ouvrir le tableau médecin',
     patientCTA: 'Entrer un code patient',
     liveBadge: 'Monitoring temps reel',
     patientsFollowed: 'patients suivis',
     criticalFirst: 'priorite rouge en tete',
     dailyMinute: 'rapport patient en moins d une minute',
-    secureData: 'structure Supabase prete clinique',
     productSignal: 'Plateforme HTA specialisee',
     clinicalFocus: 'Concue pour la pression arterielle, les symptomes et l observance.',
     proactiveCare: 'Medecine proactive',
@@ -157,14 +156,16 @@ export const copy = {
     dashboardSubtitle:
       'Patients classes par priorite clinique avec les dernieres valeurs et alertes.',
     authenticated: 'Session clinique active',
+    secureAccess: 'Accès sécurisé',
     signInTitle: 'Connexion medecin',
     signInBody:
-      'Connectez votre compte Supabase Auth autorise avec le role medecin.',
+      'Connectez votre compte professionnel autorise avec le role medecin.',
     email: 'Email',
     password: 'Mot de passe',
     signIn: 'Se connecter',
-    doctorOnlyAccess: 'Acces reserve aux comptes Supabase avec le role medecin.',
-    supabaseRequired: 'Supabase doit etre configure pour acceder au tableau medecin.',
+    signOut: 'Déconnexion',
+    doctorOnlyAccess: 'Acces reserve aux comptes medecin autorises.',
+    serverRequired: 'Configuration serveur requise pour acceder au tableau medecin.',
     loadingClinic: 'Chargement des donnees clinique...',
     filterAll: 'Tous',
     filterStable: 'Stables',
@@ -240,7 +241,11 @@ export const copy = {
     controlledPatients: 'patients controles',
     alertsToday: 'alertes aujourd hui',
     avgAdherence: 'observance moyenne',
-    supabaseReady: 'Supabase active si les variables VITE_SUPABASE_* sont configurees.',
+    footerTagline: 'Surveillance médicale continue, claire et accessible.',
+    contactUs: 'Contactez-nous',
+    contactTitle: 'Parlons de votre projet de suivi intelligent des maladies chroniques',
+    contactBody:
+      'Pour une démonstration, une collaboration clinique ou une intégration dans votre structure de santé, écrivez-nous directement.',
     patientNotSelected: 'Selectionnez un patient pour voir le detail.',
     selectedPatient: 'Patient selectionne',
     target: 'Objectif',
@@ -251,18 +256,17 @@ export const copy = {
     copied: 'Code pret pour le patient'
   },
   ar: {
-    brand: 'TensioCare HTA',
+    brand: 'Suivi HTA',
     tagline: 'رعاية ذكية ومستمرة لارتفاع الضغط',
-    heroTitle: 'متابعة ذكية ومستمرة لمرضى ارتفاع ضغط الدم',
+    heroTitle: 'نراقب ضغطكم الشرياني ونحمي قلوبكم.',
     heroBody:
-      'منصة طبية متخصصة في HTA تربط المريض بطبيبه، ترتب المخاطر تلقائيا، وتساعد على التدخل قبل تفاقم الحالة.',
+      'منصة مغربية ذكية للمتابعة المستمرة لارتفاع ضغط الدم، تساعد الأطباء والعيادات على اكتشاف الاضطراب قبل ظهور المضاعفات.',
     doctorCTA: 'فتح لوحة الطبيب',
     patientCTA: 'إدخال رمز المريض',
     liveBadge: 'مراقبة فورية',
     patientsFollowed: 'مرضى تحت المتابعة',
     criticalFirst: 'الحالات الحمراء في المقدمة',
     dailyMinute: 'تقرير يومي في أقل من دقيقة',
-    secureData: 'بنية Supabase جاهزة للعيادات',
     productSignal: 'منصة متخصصة في HTA',
     clinicalFocus: 'مصممة للضغط، الأعراض، والالتزام بالعلاج.',
     proactiveCare: 'طب استباقي',
@@ -278,13 +282,15 @@ export const copy = {
     dashboardTitle: 'لوحة الطبيب',
     dashboardSubtitle: 'ترتيب المرضى حسب الأولوية السريرية مع آخر القيم والتنبيهات.',
     authenticated: 'جلسة العيادة مفعلة',
+    secureAccess: 'دخول آمن',
     signInTitle: 'دخول الطبيب',
-    signInBody: 'ادخل بحساب Supabase Auth مرخص له بدور طبيب.',
+    signInBody: 'ادخل بحساب مهني مرخص له بدور طبيب.',
     email: 'البريد الإلكتروني',
     password: 'كلمة المرور',
     signIn: 'دخول',
-    doctorOnlyAccess: 'الدخول مخصص لحسابات Supabase التي تحمل دور طبيب.',
-    supabaseRequired: 'يجب إعداد Supabase للوصول إلى لوحة الطبيب.',
+    signOut: 'خروج',
+    doctorOnlyAccess: 'الدخول مخصص للحسابات الطبية المرخصة.',
+    serverRequired: 'إعداد الخادم مطلوب للوصول إلى لوحة الطبيب.',
     loadingClinic: 'تحميل بيانات العيادة...',
     filterAll: 'الكل',
     filterStable: 'مستقر',
@@ -356,7 +362,11 @@ export const copy = {
     controlledPatients: 'مرضى مضبوطون',
     alertsToday: 'تنبيهات اليوم',
     avgAdherence: 'متوسط الالتزام',
-    supabaseReady: 'يعمل Supabase عند ضبط VITE_SUPABASE_*.',
+    footerTagline: 'مراقبة طبية مستمرة، واضحة، وسهلة الوصول.',
+    contactUs: 'اتصلوا بنا',
+    contactTitle: 'لنتحدث عن مشروعكم لمتابعة ارتفاع الضغط',
+    contactBody:
+      'لطلب عرض توضيحي أو تعاون طبي أو إدماج المنصة داخل مؤسسة صحية، يمكنكم مراسلتنا مباشرة.',
     patientNotSelected: 'اختر مريضا لرؤية التفاصيل.',
     selectedPatient: 'المريض المحدد',
     target: 'الهدف',
